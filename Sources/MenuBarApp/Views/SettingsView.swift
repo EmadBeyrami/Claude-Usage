@@ -118,11 +118,7 @@ struct SettingsView: View {
     }
 
     private func addFolder() {
-        guard let url = FolderPicker.choose(
-            message: "Choose a Claude Code config folder — the one containing a “projects” folder.",
-            suggesting: FolderPicker.suggestedFolder)
-        else { return }
-        poller.addFolder(url)
+        FolderPicker.chooseAndGrant { poller.addFolder($0) }
     }
 
     private func reload() {

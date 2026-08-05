@@ -63,7 +63,7 @@ private struct MenuBarContent: View {
                  grantedFolders: poller.grantedFolders,
                  update: poller.update,
                  refresh: poller.refreshNow,
-                 grantFolder: { poller.addFolder(FolderPicker.suggestedFolder) },
+                 grantFolder: { FolderPicker.chooseAndGrant { poller.addFolder($0) } },
                  saveToken: { poller.saveToken($0) },
                  openWelcome: { openWindow(id: "welcome") })
     }
@@ -74,6 +74,6 @@ private struct WelcomeContent: View {
 
     var body: some View {
         WelcomeView(grantedFolders: poller.grantedFolders,
-                   grantFolder: { poller.addFolder(FolderPicker.suggestedFolder) })
+                   grantFolder: { FolderPicker.chooseAndGrant { poller.addFolder($0) } })
     }
 }

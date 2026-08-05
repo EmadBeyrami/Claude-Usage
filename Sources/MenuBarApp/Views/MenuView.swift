@@ -9,6 +9,7 @@ struct MenuView: View {
     var refresh: () -> Void = {}
     var grantFolder: () -> Void = {}
     var saveToken: (String) -> Void = { _ in }
+    var openWelcome: () -> Void = {}
     /// False renders the informational content only. ImageRenderer draws
     /// interactive controls as unavailable and reads the version from whatever
     /// bundle it's hosted in, so the marketing shots would otherwise show
@@ -146,6 +147,7 @@ struct MenuView: View {
                     Button("Refresh", action: refresh)
                         .disabled(isRefreshing)
                     SettingsLink { Text("Settings…") }
+                    Button("Welcome…", action: openWelcome)
                     Spacer()
                     Button("Quit") { NSApplication.shared.terminate(nil) }
                 }

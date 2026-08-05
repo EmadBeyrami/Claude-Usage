@@ -164,6 +164,15 @@ final class RenderSnapshotTests: XCTestCase {
         try render(view, to: "menu-onboarding-unrecognised-folder.png")
     }
 
+    func testRenderWelcome() throws {
+        for scheme in [ColorScheme.light, .dark] {
+            let view = WelcomeView()
+                .background(scheme == .dark ? Color.black : Color.white)
+                .environment(\.colorScheme, scheme)
+            try render(view, to: "welcome-\(scheme.name).png")
+        }
+    }
+
     // No settings renders: `Form` with `.formStyle(.grouped)` is NSTableView-backed
     // and ImageRenderer draws it empty, so the PNGs were blank grey rectangles
     // pretending to be coverage. The native grouped Form is the right control for

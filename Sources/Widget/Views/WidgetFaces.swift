@@ -20,12 +20,20 @@ enum Face: String, CaseIterable {
 /// Why a widget can't show what it was configured to show.
 enum WidgetProblem {
     case noData
+    /// The App Group container isn't reachable from *this* process — a
+    /// different failure than `noData`, and a far more common one during
+    /// development: the widget extension has its own provisioning profile,
+    /// separate from the host app's, and needs the App Groups capability
+    /// added to it independently. A host app that reads its own data back
+    /// fine says nothing about whether the widget's process can.
+    case noSharedContainer
     case profileMissing
 
     var headline: String {
         switch self {
-        case .noData:         return "Open Claude Usage"
-        case .profileMissing: return "Profile not found"
+        case .noData:            return "Open Claude Usage"
+        case .noSharedContainer: return "Widget can't reach app data"
+        case .profileMissing:    return "Profile not found"
         }
     }
 
@@ -33,8 +41,18 @@ enum WidgetProblem {
         switch self {
         case .noData:
             return "The menu bar app supplies the data"
+        case .noSharedContainer:
+            return "Add App Groups to the widget target in Xcode"
         case .profileMissing:
             return "Pick another in Edit Widget"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .noData:            return "chart.pie"
+        case .noSharedContainer: return "exclamationmark.triangle"
+        case .profileMissing:    return "questionmark.folder"
         }
     }
 }
@@ -266,8 +284,7 @@ struct UsageWidgetView: View {
     /// which would look like the widget working and be wrong.
     private func unavailable(_ problem: WidgetProblem) -> some View {
         VStack(spacing: 6) {
-            Image(systemName: problem == .profileMissing
-                  ? "questionmark.folder" : "chart.pie")
+            Image(systemName: problem.icon)
                 .font(.system(size: 22))
                 .foregroundStyle(.tertiary)
             Text(problem.headline)

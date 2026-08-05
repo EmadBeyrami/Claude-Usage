@@ -101,6 +101,7 @@ final class RenderSnapshotTests: XCTestCase {
         let cases: [(String, WidgetProblem, String?)] = [
             ("missing-profile", .profileMissing, "Work — alex@acme.com"),
             ("no-data", .noData, nil),
+            ("no-shared-container", .noSharedContainer, nil),
         ]
         for (name, problem, scope) in cases {
             for face in Face.allCases {

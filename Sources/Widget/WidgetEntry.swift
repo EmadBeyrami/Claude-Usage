@@ -48,8 +48,15 @@ struct UsageProvider: AppIntentTimelineProvider {
         let wantedProject = configuration.project.flatMap { $0.isEmpty ? nil : $0 }
 
         guard let bundle = SnapshotBundle.read() else {
-            return UsageEntry(date: Date(), snapshot: nil, project: nil,
-                              scopeLabel: nil, problem: .noData)
+            // Two different failures look identical from here — nothing to
+            // read — so tell them apart by checking whether *this* process
+            // can even see the App Group container. If it can't, the host
+            // writing more data will never fix it; if it can, this is just
+            // "the host hasn't polled yet."
+            let hasContainer = FileManager.default
+                .containerURL(forSecurityApplicationGroupIdentifier: Snapshot.appGroup) != nil
+            return UsageEntry(date: Date(), snapshot: nil, project: nil, scopeLabel: nil,
+                              problem: hasContainer ? .noData : .noSharedContainer)
         }
 
         let profile: Profile?

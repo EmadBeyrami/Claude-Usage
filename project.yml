@@ -1,0 +1,133 @@
+name: ClaudeUsage
+
+options:
+  bundleIdPrefix: com.beyrami
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+  generateEmptyDirectories: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+    DEVELOPMENT_TEAM: BW7XZA6U32
+    CODE_SIGN_STYLE: Automatic
+    ENABLE_HARDENED_RUNTIME: YES
+    SWIFT_STRICT_CONCURRENCY: minimal
+
+targets:
+
+  ClaudeUsage:
+    type: application
+    platform: macOS
+    sources:
+      - Sources/UsageCore
+      - Sources/SharedViews
+      - Sources/MenuBarApp
+      - Sources/MenuBarApp/Assets.xcassets
+      - path: Sources/MenuBarApp/PrivacyInfo.xcprivacy
+        buildPhase: resources
+    dependencies:
+      - target: ClaudeUsageWidget
+        embed: true
+        codeSign: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.beyrami.claude-usage
+        PRODUCT_NAME: Claude Usage
+        GENERATE_INFOPLIST_FILE: YES
+        # No Dock icon, no menu bar item beyond the status item — this app is
+        # only its status item. The icon still shows in Finder, login items,
+        # and the widget gallery.
+        INFOPLIST_KEY_LSUIElement: YES
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.developer-tools
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        INFOPLIST_KEY_NSHumanReadableCopyright: "© 2026 Emad Beyrami. MIT licensed."
+        COMBINE_HIDPI_IMAGES: YES
+        # HTTPS-only, standard exemption — skips the App Store Connect export
+        # compliance prompt.
+        INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: NO
+    entitlements:
+      path: Sources/MenuBarApp/ClaudeUsage.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        com.apple.security.application-groups:
+          - group.com.beyrami.claude-usage
+        # Persisted security-scoped bookmarks to whatever folder(s) the user
+        # grants access to (their Claude Code config directories) via the
+        # Settings folder picker.
+        com.apple.security.files.bookmarks.app-scope: true
+        com.apple.security.files.user-selected.read-only: true
+        com.apple.security.network.client: true
+
+  ClaudeUsageWidget:
+    type: app-extension
+    platform: macOS
+    sources:
+      - Sources/UsageCore
+      - Sources/SharedViews
+      - Sources/Widget
+      - path: Sources/Widget/PrivacyInfo.xcprivacy
+        buildPhase: resources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.beyrami.claude-usage.widget
+        PRODUCT_NAME: ClaudeUsageWidget
+    info:
+      path: Sources/Widget/Info.plist
+      properties:
+        CFBundleDisplayName: Claude Usage
+        # Must match the containing app or the bundle fails validation.
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    entitlements:
+      path: Sources/Widget/ClaudeUsageWidget.entitlements
+      properties:
+        # Required, not optional: macOS never registers an unsandboxed app
+        # extension, so the widget simply never appears in the gallery.
+        com.apple.security.app-sandbox: true
+        com.apple.security.application-groups:
+          - group.com.beyrami.claude-usage
+
+  SnapshotTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - Sources/UsageCore
+      - Sources/SharedViews
+      - Sources/Widget/Views
+      - Sources/MenuBarApp/Views
+      # Settings renders live Poller state; App.swift stays out, its @main would
+      # collide with the test bundle's entry point.
+      - Sources/MenuBarApp/Poller.swift
+      - Sources/MenuBarApp/FolderPicker.swift
+      - Tests/SnapshotTests
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.beyrami.claude-usage.snapshots
+        # A logic test with no host app — ImageRenderer needs no running NSApp.
+        CODE_SIGNING_ALLOWED: NO
+
+schemes:
+
+  ClaudeUsage:
+    build:
+      targets:
+        ClaudeUsage: all
+    run:
+      config: Debug
+    archive:
+      config: Release
+
+  SnapshotTests:
+    build:
+      targets:
+        SnapshotTests: [test]
+    test:
+      config: Debug
+      targets:
+        - SnapshotTests

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Claude Usage — Privacy Policy</title>
+<style>
+  body { font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+         max-width: 640px; margin: 4rem auto; padding: 0 1.5rem; color: #1a1a1a; }
+  h1 { font-size: 1.6rem; }
+  h2 { font-size: 1.1rem; margin-top: 2.5rem; }
+  code { background: #f2f2f2; padding: 0.1em 0.4em; border-radius: 4px; font-size: 0.9em; }
+  a { color: #d97757; }
+  .updated { color: #666; font-size: 0.9em; }
+</style>
+</head>
+<body>
+<h1>Privacy Policy</h1>
+<p class="updated">Last updated 2026.</p>
+
+<p>Claude Usage is a macOS menu bar app and widget that shows your own Claude
+Code usage — session and weekly limit percentages, token counts, and
+estimated cost. This policy covers exactly what the app does with your data,
+because the honest answer is: nothing leaves your Mac except one request you
+already trust.</p>
+
+<h2>What the app reads</h2>
+<p>With your permission (granted once, through a macOS Open panel), the app
+reads a Claude Code config folder on your Mac — typically <code>~/.claude</code>
+— to compute token counts and estimated cost from your own transcript files.
+It also makes one authenticated HTTPS request to
+<code>api.anthropic.com/api/oauth/usage</code>, using a Claude Code login
+token, to fetch your account's 5-hour and 7-day limit utilization.</p>
+
+<h2>What the app sends, and to whom</h2>
+<p>Nothing, except that one request to Anthropic's own API, made with your
+own credentials, to fetch your own numbers. The app has no server of its own.
+No analytics, no crash reporting, no telemetry, no advertising identifiers.</p>
+
+<h2>What's stored, and where</h2>
+<ul>
+<li>A small snapshot file (token counts, cost, limit percentages) is written
+to the app's own Application Support directory and to an App Group container
+shared only with this app's own widget extension — both stay on your Mac.</li>
+<li>If you paste an access token into Settings (only needed for accounts
+where the token isn't already reachable in a file), it's stored in this
+app's own Keychain item, protected by macOS, and never written to disk in
+plain text or transmitted anywhere but the Anthropic request above.</li>
+<li>Daily usage history is kept locally so charts survive Claude Code pruning
+old transcripts. It never leaves your Mac.</li>
+</ul>
+
+<h2>Third parties</h2>
+<p>The app optionally checks GitHub's public releases API for a newer
+version, purely informational — no personal data is included in that
+request, and nothing is downloaded or installed automatically.</p>
+
+<h2>Contact</h2>
+<p>Questions about this policy: open an issue on the project's GitHub
+repository.</p>
+</body>
+</html>

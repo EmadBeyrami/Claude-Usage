@@ -29,6 +29,7 @@ struct SettingsView: View {
         Form {
             profileSection
             tokenSection
+            widgetSection
             displaySection
             updatesSection
 
@@ -208,6 +209,64 @@ struct SettingsView: View {
         CredentialStore.clearManualToken(for: profile)
         poller.refreshNow()
     }
+
+    // MARK: - Widget
+
+    /// The app and the widget are two separate sandboxed processes — they only
+    /// ever see the same data through the App Group container. If that
+    /// entitlement never got provisioned (common for a build made entirely
+    /// from the command line, before Xcode's Signing & Capabilities tab has
+    /// registered the group with your Apple Developer account), each process
+    /// silently falls back to its own private Application Support folder and
+    /// the widget never updates — no error, just nothing. This section makes
+    /// that failure visible instead of leaving it to guesswork.
+    private var widgetSection: some View {
+        Section {
+            LabeledContent("App ↔ widget sharing") {
+                if appGroupContainer != nil {
+                    Label("Working", systemImage: "checkmark.circle.fill")
+                        .foregroundStyle(.green)
+                } else {
+                    Label("Unavailable", systemImage: "exclamationmark.triangle.fill")
+                        .foregroundStyle(Level.warn.tint)
+                }
+            }
+            .font(.caption)
+
+            if appGroupContainer == nil {
+                Text("The widget can't see this app's data without it. In Xcode, select the ClaudeUsage target, then the ClaudeUsageWidget target, under Signing & Capabilities — confirm App Groups lists \(Snapshot.appGroup) with no warning icon on either.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            if let written = lastWrittenSnapshot {
+                LabeledContent("Last written", value: Self.diagnosticFormatter.string(from: written))
+                    .font(.caption)
+            } else {
+                Text("No snapshot written yet — grant a folder above, then hit Rescan.")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            }
+        } header: {
+            Text("Widget")
+        }
+    }
+
+    private var appGroupContainer: URL? {
+        FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Snapshot.appGroup)
+    }
+
+    private var lastWrittenSnapshot: Date? {
+        SnapshotBundle.read()?.updatedAt
+    }
+
+    private static let diagnosticFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateStyle = .none
+        f.timeStyle = .medium
+        return f
+    }()
 
     // MARK: - Display
 

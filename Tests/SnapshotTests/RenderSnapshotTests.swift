@@ -152,6 +152,17 @@ final class RenderSnapshotTests: XCTestCase {
         }
     }
 
+    /// Picked a folder, but it doesn't look like a Claude Code config
+    /// directory — the warning that tells the user step 1 probably isn't done.
+    func testRenderOnboardingWithUnrecognisedFolder() throws {
+        let view = MenuView(
+            snapshot: nil, isRefreshing: false, needsOnboarding: true,
+            grantedFolders: [URL(fileURLWithPath: "/Users/alex/not-claude")])
+            .background(Color.black)
+            .environment(\.colorScheme, .dark)
+        try render(view, to: "menu-onboarding-unrecognised-folder.png")
+    }
+
     // No settings renders: `Form` with `.formStyle(.grouped)` is NSTableView-backed
     // and ImageRenderer draws it empty, so the PNGs were blank grey rectangles
     // pretending to be coverage. The native grouped Form is the right control for

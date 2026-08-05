@@ -9,9 +9,11 @@ struct ClaudeUsageApp: App {
             MenuView(snapshot: poller.snapshot,
                      isRefreshing: poller.isRefreshing,
                      needsOnboarding: poller.needsOnboarding,
+                     grantedFolders: poller.grantedFolders,
                      update: poller.update,
                      refresh: poller.refreshNow,
-                     grantFolder: { poller.addFolder(FolderPicker.suggestedFolder) })
+                     grantFolder: { poller.addFolder(FolderPicker.suggestedFolder) },
+                     saveToken: { poller.saveToken($0) })
         } label: {
             // Monospaced digits stop the menu bar shuffling as the number changes.
             Text(poller.menuBarTitle).monospacedDigit()

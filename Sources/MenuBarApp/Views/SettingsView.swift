@@ -182,12 +182,9 @@ struct SettingsView: View {
                     .textSelection(.enabled)
                     .lineLimit(1)
                 Spacer()
-                Button("Copy") {
-                    NSPasteboard.general.clearContents()
-                    NSPasteboard.general.setString(Self.tokenCommand, forType: .string)
-                }
-                .buttonStyle(.borderless)
-                .font(.caption)
+                Button("Copy") { SystemActions.copyToClipboard(Self.tokenCommand) }
+                    .buttonStyle(.borderless)
+                    .font(.caption)
             }
             Text("Paste the whole output above — it's JSON, and Claude Usage reads the token out of it. The token expires periodically; repeat this whenever Settings shows a “token expired” message.")
                 .font(.caption)

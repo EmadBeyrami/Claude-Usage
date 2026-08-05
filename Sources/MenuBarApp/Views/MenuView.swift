@@ -4,14 +4,18 @@ struct MenuView: View {
     let snapshot: Snapshot?
     let isRefreshing: Bool
     var needsOnboarding = false
+    var grantedFolders: [URL] = []
     var update: ReleaseInfo?
     var refresh: () -> Void = {}
     var grantFolder: () -> Void = {}
+    var saveToken: (String) -> Void = { _ in }
     /// False renders the informational content only. ImageRenderer draws
     /// interactive controls as unavailable and reads the version from whatever
     /// bundle it's hosted in, so the marketing shots would otherwise show
     /// prohibition badges and the test runner's version number.
     var showsActions = true
+
+    @State private var tokenInput = ""
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -45,14 +49,14 @@ struct MenuView: View {
                     .padding(.bottom, 5)
                 ProjectList(projects: snapshot.stats.projects)
 
-                if let message = snapshot.errorMessage {
+                if snapshot.errorMessage != nil {
                     Divider().padding(.vertical, 10)
-                    banner(message, stale: snapshot.stale)
+                    banner(snapshot)
                 }
                 Divider().padding(.vertical, 10)
                 footer(snapshot)
             } else if needsOnboarding {
-                OnboardingView(grantFolder: grantFolder)
+                OnboardingView(grantedFolders: grantedFolders, grantFolder: grantFolder)
             } else {
                 loading
             }
@@ -86,15 +90,35 @@ struct MenuView: View {
         }
     }
 
-    private func banner(_ message: String, stale: Bool) -> some View {
-        HStack(spacing: 6) {
-            Image(systemName: "exclamationmark.triangle.fill")
-                .foregroundStyle(Level.warn.tint)
-            Text(stale ? "\(message) — showing older numbers" : message)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
+    private func banner(_ snapshot: Snapshot) -> some View {
+        let message = snapshot.errorMessage ?? ""
+        return VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 6) {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .foregroundStyle(Level.warn.tint)
+                Text(snapshot.stale ? "\(message) — showing older numbers" : message)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .font(.system(size: 10))
+
+            // The one error a user can fix without leaving this popover:
+            // paste a token right where the problem is shown, instead of
+            // sending them to Settings for it.
+            if showsActions, snapshot.error == "no-token" || snapshot.error == "token-expired" {
+                HStack(spacing: 6) {
+                    SecureField("Paste access token", text: $tokenInput)
+                        .font(.system(size: 10))
+                        .textFieldStyle(.roundedBorder)
+                    Button("Save") {
+                        saveToken(tokenInput)
+                        tokenInput = ""
+                    }
+                    .controlSize(.small)
+                    .disabled(tokenInput.trimmingCharacters(in: .whitespaces).isEmpty)
+                }
+            }
         }
-        .font(.system(size: 10))
     }
 
     // ponytail: text buttons, not an icon row — it's what menu bar apps

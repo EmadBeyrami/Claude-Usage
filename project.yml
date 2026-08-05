@@ -105,6 +105,7 @@ targets:
       # collide with the test bundle's entry point.
       - Sources/MenuBarApp/Poller.swift
       - Sources/MenuBarApp/FolderPicker.swift
+      - Sources/MenuBarApp/SystemActions.swift
       - Tests/SnapshotTests
     settings:
       base:

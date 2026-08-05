@@ -46,8 +46,8 @@ extension Snapshot {
     var errorMessage: String? {
         switch error {
         case nil:               return nil
-        case "no-token":        return "Paste your access token in Settings"
-        case "token-expired":   return "Token expired — paste a fresh one in Settings"
+        case "no-token":        return "Paste your access token below to see limits"
+        case "token-expired":   return "Token expired — paste a fresh one below"
         case "network":         return "No connection"
         case "bad-json":        return "Unexpected response"
         case let code?:

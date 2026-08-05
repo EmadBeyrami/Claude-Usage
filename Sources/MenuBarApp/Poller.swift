@@ -101,6 +101,15 @@ final class Poller: ObservableObject {
         rediscover()
     }
 
+    /// Saves a pasted token for the active profile and refreshes right away,
+    /// so the popover's inline "paste token" affordance shows the result
+    /// immediately instead of waiting for the next 60s poll.
+    func saveToken(_ text: String) {
+        guard let profile = activeProfile else { return }
+        CredentialStore.saveManualToken(text, for: profile)
+        refreshNow()
+    }
+
     func select(_ profile: Profile) {
         selectedProfile = profile.id
         // Nothing stale must sit under a newly selected profile's name.
